@@ -44,7 +44,9 @@ public class App {
                     ip,
                     reachable,
                     portScanner.getOpenPorts(),
-                    portScanner.getClosedPorts()
+                    portScanner.getClosedPorts(),
+                    portScanner.getFilteredPorts(),
+                    portScanner.getErrorPorts()
             );
 
         } catch (Exception e) {

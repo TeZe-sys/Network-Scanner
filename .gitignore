@@ -1,5 +1,5 @@
 
-# Maven build files
+# Maven build output
 target/
 
 # Java compiled files
@@ -13,5 +13,6 @@ target/
 .DS_Store
 Thumbs.db
 
-# Temporary files
-*.log
+# Generated scan reports
+reports/*.txt
+reports/*.csv

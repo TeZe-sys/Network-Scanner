@@ -24,13 +24,19 @@ public class PortScanner {
     private final List<Integer> closedPorts =
             Collections.synchronizedList(new ArrayList<>());
 
+    private final List<Integer> filteredPorts =
+            Collections.synchronizedList(new ArrayList<>());
+
+    private final List<Integer> errorPorts =
+            Collections.synchronizedList(new ArrayList<>());
+
     public void scanPort(String ip, int port) {
 
         try (Socket socket = new Socket()) {
 
             socket.connect(
-                new InetSocketAddress(ip, port),
-                TIMEOUT
+                    new InetSocketAddress(ip, port),
+                    TIMEOUT
             );
 
             openPorts.add(port);
@@ -43,10 +49,12 @@ public class PortScanner {
 
         } catch (SocketTimeoutException e) {
 
+            filteredPorts.add(port);
             System.out.println("[NO RESPONSE / FILTERED] " + port);
 
         } catch (IOException e) {
 
+            errorPorts.add(port);
             System.out.println("[ERROR] " + port);
         }
     }
@@ -55,11 +63,13 @@ public class PortScanner {
 
         openPorts.clear();
         closedPorts.clear();
+        filteredPorts.clear();
+        errorPorts.clear();
 
         int[] ports = {
-            21, 22, 23, 25, 53,
-            80, 110, 143, 443,
-            445, 3306, 5432, 8080
+                21, 22, 23, 25, 53,
+                80, 110, 143, 443,
+                445, 3306, 5432, 8080
         };
 
         System.out.println("\n================================");
@@ -98,5 +108,13 @@ public class PortScanner {
 
     public List<Integer> getClosedPorts() {
         return new ArrayList<>(closedPorts);
+    }
+
+    public List<Integer> getFilteredPorts() {
+        return new ArrayList<>(filteredPorts);
+    }
+
+    public List<Integer> getErrorPorts() {
+        return new ArrayList<>(errorPorts);
     }
 }

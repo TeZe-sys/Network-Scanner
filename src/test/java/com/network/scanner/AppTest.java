@@ -1,38 +1,48 @@
+
 package com.network.scanner;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import java.io.IOException;
+import java.net.ServerSocket;
 
-/**
- * Unit test for simple App.
- */
-public class AppTest 
-    extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+
+public class AppTest {
+
+    @Test
+    public void detectsOpenPort() throws IOException {
+
+        try (ServerSocket server = new ServerSocket(0)) {
+
+            int port = server.getLocalPort();
+
+            PortScanner scanner = new PortScanner();
+
+            scanner.scanPort("127.0.0.1", port);
+
+            assertTrue(
+                    "Port should be detected as open",
+                    scanner.getOpenPorts().contains(port)
+            );
+        }
     }
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
-    }
+    @Test
+    public void detectsClosedPort() throws IOException {
 
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
+        int port;
+
+        try (ServerSocket server = new ServerSocket(0)) {
+            port = server.getLocalPort();
+        }
+
+        PortScanner scanner = new PortScanner();
+
+        scanner.scanPort("127.0.0.1", port);
+
+        assertTrue(
+                "Port should be detected as closed",
+                scanner.getClosedPorts().contains(port)
+        );
     }
 }
