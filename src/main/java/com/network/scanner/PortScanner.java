@@ -6,6 +6,9 @@ import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -14,6 +17,12 @@ public class PortScanner {
 
     private static final int TIMEOUT = 500;
     private static final int THREAD_COUNT = 5;
+
+    private final List<Integer> openPorts =
+            Collections.synchronizedList(new ArrayList<>());
+
+    private final List<Integer> closedPorts =
+            Collections.synchronizedList(new ArrayList<>());
 
     public void scanPort(String ip, int port) {
 
@@ -24,10 +33,12 @@ public class PortScanner {
                 TIMEOUT
             );
 
+            openPorts.add(port);
             System.out.println("[OPEN] " + port);
 
         } catch (ConnectException e) {
 
+            closedPorts.add(port);
             System.out.println("[CLOSED] " + port);
 
         } catch (SocketTimeoutException e) {
@@ -41,6 +52,9 @@ public class PortScanner {
     }
 
     public void scanCommonPorts(String ip) {
+
+        openPorts.clear();
+        closedPorts.clear();
 
         int[] ports = {
             21, 22, 23, 25, 53,
@@ -76,5 +90,13 @@ public class PortScanner {
         System.out.println("================================");
         System.out.println("          SCAN COMPLETE");
         System.out.println("================================");
+    }
+
+    public List<Integer> getOpenPorts() {
+        return new ArrayList<>(openPorts);
+    }
+
+    public List<Integer> getClosedPorts() {
+        return new ArrayList<>(closedPorts);
     }
 }

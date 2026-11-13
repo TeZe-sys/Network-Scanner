@@ -31,12 +31,21 @@ public class App {
             if (reachable) {
                 System.out.println("[+] Device is reachable");
             } else {
-                System.out.println("[-] Reachability probe received no response");
+                System.out.println("[-] No reachability response received");
             }
 
             PortScanner portScanner = new PortScanner();
 
             portScanner.scanCommonPorts(ip);
+
+            ReportGenerator reportGenerator = new ReportGenerator();
+
+            reportGenerator.generateReport(
+                    ip,
+                    reachable,
+                    portScanner.getOpenPorts(),
+                    portScanner.getClosedPorts()
+            );
 
         } catch (Exception e) {
 
