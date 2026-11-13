@@ -6,10 +6,14 @@ import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class PortScanner {
 
     private static final int TIMEOUT = 500;
+    private static final int THREAD_COUNT = 5;
 
     public void scanPort(String ip, int port) {
 
@@ -32,8 +36,7 @@ public class PortScanner {
 
         } catch (IOException e) {
 
-            System.out.println("[ERROR] " + port + " - " + e.getMessage());
-
+            System.out.println("[ERROR] " + port);
         }
     }
 
@@ -46,13 +49,28 @@ public class PortScanner {
         };
 
         System.out.println("\n================================");
-        System.out.println("          TCP PORT SCAN");
+        System.out.println("      MULTITHREADED PORT SCAN");
         System.out.println("================================");
 
+        ExecutorService executor =
+                Executors.newFixedThreadPool(THREAD_COUNT);
+
         for (int port : ports) {
+            executor.submit(() -> scanPort(ip, port));
+        }
 
-            scanPort(ip, port);
+        executor.shutdown();
 
+        try {
+
+            if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
+                executor.shutdownNow();
+            }
+
+        } catch (InterruptedException e) {
+
+            executor.shutdownNow();
+            Thread.currentThread().interrupt();
         }
 
         System.out.println("================================");
